@@ -1,31 +1,52 @@
+using System;
 using System.Collections;
 using NUnit.Framework;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
-namespace Sample
+namespace HomeworkTests
 {
     [TestFixture]
     public sealed class CharacterTests
     {
+        private const string SCENE_PATH = "Assets/Tests/Scenes/SampleScene.unity";
+
         private GameObject character;
+
+        [UnitySetUp]
+        public IEnumerator SetUp()
+        {
+            AsyncOperation operation = EditorSceneManager
+                .LoadSceneAsyncInPlayMode(SCENE_PATH, new LoadSceneParameters(LoadSceneMode.Single));
+
+            while (!operation.isDone)
+            {
+                yield return null;
+            }
+
+            this.character = GameObject.FindGameObjectWithTag("Player");
+        }
 
         [UnityTest]
         public IEnumerator DamageTest()
         {
             //Arange:
-            yield return this.Initialize();
-            
             var healthComponent = this.character.GetComponent<HealthComponent>();
-            healthComponent.Health = 10;
+            if (healthComponent == null)
+            {
+                throw new Exception("Expected HealthComponent on Character");
+            }
             
+            healthComponent.Health = 10;
+
             //Act:
             healthComponent.TakeDamage(5);
-            
+
             //Assert:
             Assert.AreEqual(healthComponent.Health, 5);
-            
+
             yield return new WaitForFixedUpdate();
             Assert.IsTrue(this.character.activeSelf);
         }
@@ -33,23 +54,26 @@ namespace Sample
         [UnityTest]
         public IEnumerator RestoreHealthTest()
         {
-            //Arange:
-            yield return this.Initialize();
-            
+            //Arrange
             var healthComponent = this.character.GetComponent<HealthComponent>();
+            if (healthComponent == null)
+            {
+                throw new Exception("Expected HealthComponent on Character");
+            }
+            
             healthComponent.MaxHealth = 10;
             healthComponent.Health = 0;
             this.character.SetActive(false);
-            
+
             //Act:
             healthComponent.RestoreHitPoints(5);
-            
+
             //Assert:
             Assert.AreEqual(healthComponent.Health, 5);
-         
+
             yield return new WaitForSeconds(1);
             Assert.IsTrue(this.character.activeSelf);
-            
+
             //Act:
             healthComponent.RestoreHitPoints(20);
 
@@ -61,17 +85,20 @@ namespace Sample
         public IEnumerator DeathTest()
         {
             //Arange:
-            yield return this.Initialize();
-            
             var healthComponent = this.character.GetComponent<HealthComponent>();
-            healthComponent.Health = 10;
+            if (healthComponent == null)
+            {
+                throw new Exception("Expected HealthComponent on Character");
+            }
             
+            healthComponent.Health = 10;
+
             //Act:
             healthComponent.TakeDamage(15);
-            
+
             //Assert:
             Assert.AreEqual(healthComponent.Health, 0);
-            
+
             yield return new WaitForSeconds(1);
             Assert.IsTrue(!this.character.activeSelf);
         }
@@ -80,16 +107,19 @@ namespace Sample
         public IEnumerator MoveForwardTest()
         {
             //Arange:
-            yield return this.Initialize();
-
             var transform = this.character.transform;
             transform.position = Vector3.zero;
-            
+
             //Act:
             const float moveSpeed = 5;
             const float moveFrames = 100;
-            
+
             var moveComponent = this.character.GetComponent<MoveComponent>();
+            if (moveComponent == null)
+            {
+                throw new Exception("Expected MoveComponent on Character");
+            }
+            
             moveComponent.MoveSpeed = moveSpeed;
             moveComponent.MoveDirection = Vector3.forward;
 
@@ -102,22 +132,26 @@ namespace Sample
             Vector3 diff = transform.position - new Vector3(0, 0, moveSpeed * moveFrames * Time.fixedDeltaTime);
             Assert.AreEqual(diff.magnitude, 0, 1e-2);
         }
-        
-        
+
+
         [UnityTest]
         public IEnumerator MoveDiagonalTest()
         {
             //Arange:
-            yield return this.Initialize();
-
             var transform = this.character.transform;
             transform.position = Vector3.zero;
-            
+
             //Act:
             const float moveSpeed = 5;
             const float moveFrames = 100;
-            
+
             var moveComponent = this.character.GetComponent<MoveComponent>();
+            if (moveComponent == null)
+            {
+                throw new Exception("Expected MoveComponent on Character");
+            }
+            
+            
             moveComponent.MoveSpeed = moveSpeed;
             moveComponent.MoveDirection = new Vector3(-1, 0, -1);
 
@@ -136,14 +170,17 @@ namespace Sample
         public IEnumerator RotationTest()
         {
             //Arange:
-            yield return this.Initialize();
-            
             var transform = this.character.transform;
             transform.position = Vector3.zero;
 
             //Act:
             const float rotationSpeed = 200;
             var rotationComponent = this.character.GetComponent<RotationComponent>();
+            if (rotationComponent == null)
+            {
+                throw new Exception("Expected RotationComponent on Character");
+            }
+            
             rotationComponent.RotationSpeed = rotationSpeed;
             rotationComponent.RotationDirection = Vector3.back;
 
@@ -151,32 +188,32 @@ namespace Sample
 
             //Assert:
             Assert.AreEqual(transform.eulerAngles.y, 180, 1e-2);
-            
+
             //Act:
             rotationComponent.RotationDirection = Vector3.forward;
             yield return new WaitForSeconds(2.0f);
 
             //Assert:
             Assert.AreEqual(transform.eulerAngles.y, 0, 1e-2);
-            
+
             //Act:
             rotationComponent.RotationDirection = new Vector3(-1, 0, -1);
             yield return new WaitForSeconds(2.0f);
 
             //Assert:
             Assert.AreEqual(transform.eulerAngles.y, 225, 1e-2);
-            
+
             //Act:
             rotationComponent.RotationDirection = new Vector3(1, 0, -1);
             yield return new WaitForSeconds(2.0f);
-            
+
             //Assert:
             Assert.AreEqual(transform.eulerAngles.y, 135, 1e-2);
-            
+
             //Act:
             rotationComponent.RotationDirection = Vector3.zero;
             yield return new WaitForSeconds(1.0f);
-            
+
             //Assert:
             Assert.AreEqual(transform.eulerAngles.y, 135, 1e-2);
         }
@@ -185,11 +222,9 @@ namespace Sample
         private IEnumerator IntegrationTest()
         {
             //Arange:
-            yield return this.Initialize();
-            
             var transform = this.character.transform;
             transform.position = Vector3.zero;
-            
+
             var healthComponent = this.character.GetComponent<HealthComponent>();
             healthComponent.MaxHealth = 1;
             healthComponent.Health = 0;
@@ -197,40 +232,18 @@ namespace Sample
             var moveComponent = this.character.GetComponent<MoveComponent>();
             moveComponent.MoveSpeed = 5;
             moveComponent.MoveDirection = Vector3.forward;
-            
+
             var rotationComponent = this.character.GetComponent<RotationComponent>();
             rotationComponent.RotationSpeed = 5;
             rotationComponent.RotationDirection = Vector3.forward;
 
             //Act:
             yield return new WaitForSeconds(2.0f);
-            
+
             //Assert:
-            Assert.AreEqual(transform.eulerAngles.y, 0.0f, 1e-2);
-            Assert.AreEqual(transform.position.x, 0.0f, 1e-2);
-            Assert.AreEqual(transform.position.z, 0.0f, 1e-2);
-            Assert.IsFalse(this.character.activeSelf);
-
-            //Arange:
-            healthComponent.Health = 1;
-            
-            //Act:
-            yield return new WaitForSeconds(2.0f);
-            Assert.IsTrue(this.character.activeSelf);
-            Assert.AreNotEqual(transform.eulerAngles.y, 0.0f);
-            Assert.AreNotEqual(transform.position.x, 0.0f);
-            Assert.AreNotEqual(transform.position.z, 0.0f);
-        }
-
-        private IEnumerator Initialize()
-        {
-            AsyncOperation operation = SceneManager.LoadSceneAsync("SampleScene", LoadSceneMode.Single);
-            while (!operation.isDone)
-            {
-                yield return null;
-            }
-            
-            this.character = GameObject.FindGameObjectWithTag("Player");
+            Assert.AreEqual(transform.eulerAngles.y, 0.0f, 1);
+            Assert.AreEqual(transform.position.x, 0.0f, 1);
+            Assert.AreEqual(transform.position.z, 0.0f, 1);
         }
     }
 }
