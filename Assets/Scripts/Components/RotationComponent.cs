@@ -32,7 +32,8 @@ namespace Sample
             {
                 Quaternion targetRotation = Quaternion.LookRotation(rotationDirection);
                 Quaternion currentRotation = transform.rotation;
-                Quaternion newRotation = Quaternion.RotateTowards(currentRotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
+                Quaternion newRotation = Quaternion.RotateTowards
+                    (currentRotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
                 transform.rotation = newRotation;
 
             }

@@ -4,7 +4,6 @@ namespace Sample
 {
     public sealed class Сharacter : MonoBehaviour
     {
-
         [SerializeField]
         private MoveComponent moveComponent;
         [SerializeField]
@@ -14,7 +13,6 @@ namespace Sample
         bool isAlive = true;
         private void FixedUpdate()
         {
-
             this.UpdateLifeState();
         }
         
@@ -30,13 +28,10 @@ namespace Sample
             //Реализовать механику включения: если здоровье равно нулю, то игровой объект должен быть выключен на сцене,
             //если здоровье есть — то включен
             //
-
             isAlive = healthComponent.Health > 0;
             moveComponent.enabled = isAlive;
             rotationComponent.enabled = isAlive;
             
         }
-
-
     }
 }
