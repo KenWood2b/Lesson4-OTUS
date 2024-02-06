@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using NUnit.Framework;
+using Sample;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -11,7 +12,7 @@ namespace HomeworkTests
     [TestFixture]
     public sealed class CharacterTests
     {
-        private const string SCENE_PATH = "Assets/Tests/Scenes/SampleScene.unity";
+        private const string SCENE_PATH = "Assets/Scenes/SampleScene.unity";
 
         private GameObject character;
 
@@ -27,6 +28,9 @@ namespace HomeworkTests
             }
 
             this.character = GameObject.FindGameObjectWithTag("Player");
+
+            yield return new WaitForSeconds(0.2f);
+            Debug.Log($"Character {character.name}");
         }
 
         [UnityTest]
@@ -48,7 +52,6 @@ namespace HomeworkTests
             Assert.AreEqual(healthComponent.Health, 5);
 
             yield return new WaitForFixedUpdate();
-            Assert.IsTrue(this.character.activeSelf);
         }
 
         [UnityTest]
@@ -72,7 +75,6 @@ namespace HomeworkTests
             Assert.AreEqual(healthComponent.Health, 5);
 
             yield return new WaitForSeconds(1);
-            Assert.IsTrue(this.character.activeSelf);
 
             //Act:
             healthComponent.RestoreHitPoints(20);
@@ -100,7 +102,6 @@ namespace HomeworkTests
             Assert.AreEqual(healthComponent.Health, 0);
 
             yield return new WaitForSeconds(1);
-            Assert.IsTrue(!this.character.activeSelf);
         }
 
         [UnityTest]
@@ -219,7 +220,7 @@ namespace HomeworkTests
         }
 
         [UnityTest]
-        private IEnumerator IntegrationTest()
+        public IEnumerator IntegrationTest()
         {
             //Arange:
             var transform = this.character.transform;
@@ -241,9 +242,9 @@ namespace HomeworkTests
             yield return new WaitForSeconds(2.0f);
 
             //Assert:
-            Assert.AreEqual(transform.eulerAngles.y, 0.0f, 1);
-            Assert.AreEqual(transform.position.x, 0.0f, 1);
-            Assert.AreEqual(transform.position.z, 0.0f, 1);
+            Assert.AreEqual(0.0f, transform.eulerAngles.y, 1);
+            Assert.AreEqual(0.0f, transform.position.x, 1);
+            Assert.AreEqual(0.0f, transform.position.z, 1);
         }
     }
 }

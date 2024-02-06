@@ -10,15 +10,20 @@ namespace Sample
         private void Update()
         {
             //TODO: Реализовать перемещение и поворот в нужную сторону с помощью нажатия WASD / Стрелочек на клавиатуре
-            float horizontalInput = Input.GetAxis("Horizontal");
-            float verticalInput = Input.GetAxis("Vertical");
+            float moveSpeed = 5f;
 
-            Vector3 movement = new Vector3(horizontalInput, 0.0f, verticalInput);
-            character.transform.Translate(movement * Time.deltaTime);
+            float horizontalInput = Input.GetAxis("Horizontal"); 
+            float verticalInput = Input.GetAxis("Vertical"); 
 
-            if (movement != Vector3.zero)
+            Vector3 moveDirection = new Vector3(horizontalInput, 0f, verticalInput).normalized;
+
+            if (moveDirection != Vector3.zero)
             {
-                character.transform.rotation = Quaternion.LookRotation(movement);
+                Quaternion rotation = Quaternion.LookRotation(moveDirection);
+                character.transform.rotation = rotation;
+
+                character.transform.Translate(moveDirection * moveSpeed * Time.deltaTime);
+
             }
         }
     }

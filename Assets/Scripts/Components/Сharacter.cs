@@ -4,12 +4,24 @@ namespace Sample
 {
     public sealed class Сharacter : MonoBehaviour
     {
+
+        [SerializeField]
+        private MoveComponent moveComponent;
+        [SerializeField]
+        private RotationComponent rotationComponent;
+        [SerializeField]
+        private HealthComponent healthComponent;
+        bool isAlive = true;
         private void FixedUpdate()
         {
 
             this.UpdateLifeState();
         }
-
+        
+        private void UpdateRotation()
+        {
+            rotationComponent.RotationDirection = moveComponent.MoveDirection;
+        }
         private void UpdateLifeState()
         {
             //TODO:
@@ -19,7 +31,12 @@ namespace Sample
             //если здоровье есть — то включен
             //
 
-
+            isAlive = healthComponent.Health > 0;
+            moveComponent.enabled = isAlive;
+            rotationComponent.enabled = isAlive;
+            
         }
+
+
     }
 }
